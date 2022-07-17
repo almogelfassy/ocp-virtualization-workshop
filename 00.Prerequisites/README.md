@@ -1,0 +1,4 @@
+- OpenShift cluster
+- `oc` CLI tool installed
+- 'git' CLI tool installed
+- GitHub account
