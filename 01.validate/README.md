@@ -154,7 +154,8 @@ duckhunt-js   duckhunt-js-test.%cluster_subdomain%          duckhunt-js   8080-t
 You should be able to open up the application in the same browser that you're reading this guide from, either copy and paste the address, or click this link: [http://duckhunt-js-test.%cluster_subdomain%](http://duckhunt-js-test.%cluster_subdomain%). If your OpenShift cluster is working as expected and the application build was successful, you should now be able to have a quick play with this... good luck ;-)
 > **NOTE**: If the link above doesn't work just run `oc get route duckhunt-js` to find the exposed route for the app. 
 
-<img src="img/duckhunt.png"/>
+<img width="1000" alt="Screen Shot 2022-07-17 at 15 50 28" src="https://user-images.githubusercontent.com/64369864/179399155-f31e6051-46ca-490c-b07e-6e5e7138c41b.png">
+
 
 Before we start looking at OpenShift Virtualization, let's just clean up the test project and have OpenShift remove the resources...
 
