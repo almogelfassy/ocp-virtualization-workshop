@@ -1,12 +1,11 @@
 # Let's create workloads
 
 The virtual machine we're going to create will have the following properties-
-- We are going to create a machine called rhel8-server-ocs.
-- Use RHEL8 templet
-- We are going to create a clusterIP service and Loadbalancer service 
+- We are going to create a machine.
+- We are going to use RHEL8 templet
 - Lastly, we will do Live Migrate to the instance move to another node (we will explore this in more depth in a later lab).
 
-<img width="724" alt="Screen Shot 2022-07-17 at 23 17 02" src="https://user-images.githubusercontent.com/64369864/179423383-16f3bc10-1084-4e28-b48e-deca02eed4f7.png">
+<img width="687" alt="Screen Shot 2022-07-17 at 23 59 44" src="https://user-images.githubusercontent.com/64369864/179424557-6288110b-2a5a-407f-87bb-ae64da849b0f.png">
 
 Once the OpenShift virtualization operator is installed under the workloads tab found the virtualization option, Now virtual machines can be created. Has to be repeated for each VMs in the project.
 - Click Workloads → Virtualization → Create Virtual Machine.
