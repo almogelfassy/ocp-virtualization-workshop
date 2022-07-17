@@ -48,6 +48,10 @@ kubevirt-hyperconverged-operator.v4.9.3   OpenShift Virtualization   4.9.3     k
 ```
 > Once the `PHASE` changes to `Succeeded` you can validate that the required resources and the additional components have been deployed across the nodes, And all the pods shown from this command should be in the `Running` state.
 
+# Viewing the OpenShift Virtualization Dashboard
+When OpenShift Virtualization is deployed it adds additional components to OpenShift's web console so you can interact with objects and custom resources defined by OpenShift Virtualization, including VirtualMachine types. You can now navigate to "Workloads" --> "Virtualization" on the left-hand side panel, and you should see the new snap-in component for OpenShift Virtualization.
 
+<img width="777" alt="Screen Shot 2022-07-17 at 17 31 54" src="https://user-images.githubusercontent.com/64369864/179403200-8410dc54-2afb-4920-8b84-41cbb11cbbf4.png">
 
+>  Please don't try and create any virtual machines just yet, we'll get to that shortly!
 
