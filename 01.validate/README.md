@@ -68,7 +68,9 @@ image-registry                             4.9.23    True        False         F
 
 Create a new project 
 
-`oc new-project < your-name >`
+```execute
+oc new-project < your-name >
+```
 
 Now execute following command to deploy example application
 
@@ -160,12 +162,12 @@ You should be able to open up the application in the same browser that you're re
 Before we start looking at OpenShift Virtualization, let's just clean up the test project and have OpenShift remove the resources...
 
 ```execute
-oc delete project test
+oc delete project < your-name >
 ```
 Then wait for project deletion
 
 ~~~bash
-project.project.openshift.io "test" deleted
+project.project.openshift.io "< your-name >" deleted
 ~~~
 
 
