@@ -13,7 +13,7 @@ Check your cluster nodes
 oc get nodes
 ```
 
-You should be able to see the list of nodes as below:
+You should be able to see the list of nodes as below
 
 ~~~bash
 NAME                                                       STATUS   ROLES    AGE   VERSION
