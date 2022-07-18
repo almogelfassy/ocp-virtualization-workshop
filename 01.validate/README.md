@@ -5,7 +5,7 @@ Check your user
 ```execute
 oc whoami
 ```
-This should return "**system:< user >v**".
+This should return "**system:< user >**".
 
 Check your cluster nodes
 
