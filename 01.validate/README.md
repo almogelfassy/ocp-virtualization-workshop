@@ -5,7 +5,7 @@ Check your user
 ```execute
 oc whoami
 ```
-This should return "**system:serviceaccount:workbook:cnv**".
+This should return "**system:< user >v**".
 
 Check your cluster nodes
 
@@ -16,13 +16,13 @@ oc get nodes
 You should be able to see the list of nodes as below:
 
 ~~~bash
-NAME                           STATUS   ROLES    AGE   VERSION
-ocp4-master1.aio.example.com   Ready    master   18h   v1.22.3+b93fd35
-ocp4-master2.aio.example.com   Ready    master   18h   v1.22.3+b93fd35
-ocp4-master3.aio.example.com   Ready    master   18h   v1.22.3+b93fd35
-ocp4-worker1.aio.example.com   Ready    worker   18h   v1.22.3+b93fd35
-ocp4-worker2.aio.example.com   Ready    worker   18h   v1.22.3+b93fd35
-ocp4-worker3.aio.example.com   Ready    worker   18h   v1.22.3+b93fd35
+NAME                                                       STATUS   ROLES    AGE   VERSION
+master-0.c.almog-elfassy.internal                          Ready    master   14d   v1.23.5+3afdacb
+master-1.c.almog-elfassy.internal                          Ready    master   14d   v1.23.5+3afdacb
+master-2.c.almog-elfassy.internal                          Ready    master   14d   v1.23.5+3afdacb
+worker-b-4vbz5.c.almog-elfassy.internal                    Ready    worker   14d   v1.23.5+3afdacb
+worker-c-9fj7h.c.almog-elfassy.internal                    Ready    worker   14d   v1.23.5+3afdacb
+worker-d-hbq8l.c.almog-elfassy.internal                    Ready    worker   14d   v1.23.5+3afdacb
 ~~~
 
 
@@ -36,7 +36,7 @@ Then you should see the following (your minor version may be different, but shou
 
 ~~~bash
 NAME      VERSION   AVAILABLE   PROGRESSING   SINCE   STATUS
-version   4.9.23     True        False         27m     Cluster version is 4.9.23
+version   4.10.18   True        False         14d     Cluster version is 4.10.18
 ~~~
 
 Check the cluster opertators
@@ -48,17 +48,18 @@ This command will list the all cluster operators, the main components of OpenShi
 
 ~~~bash
 NAME                                       VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
-authentication                             4.9.23    True        False         False      6h19m
-baremetal                                  4.9.23    True        False         False      6h40m
-cloud-controller-manager                   4.9.23    True        False         False      6h42m
-cloud-credential                           4.9.23    True        False         False      6h54m
-cluster-autoscaler                         4.9.23    True        False         False      6h40m
-config-operator                            4.9.23    True        False         False      6h42m
-console                                    4.9.23    True        False         False      6h23m
-csi-snapshot-controller                    4.9.23    True        False         False      6h41m
-dns                                        4.9.23    True        False         False      6h40m
-etcd                                       4.9.23    True        False         False      6h40m
-image-registry                             4.9.23    True        False         False      6h17m
+authentication                             4.10.18   True        False         False      14d
+baremetal                                  4.10.18   True        False         False      14d
+cloud-controller-manager                   4.10.18   True        False         False      14d
+cloud-credential                           4.10.18   True        False         False      14d
+cluster-autoscaler                         4.10.18   True        False         False      14d
+config-operator                            4.10.18   True        False         False      14d
+console                                    4.10.18   True        False         False      14d
+csi-snapshot-controller                    4.10.18   True        False         False      14d
+dns                                        4.10.18   True        False         False      14d
+etcd                                       4.10.18   True        False         False      14d
+image-registry                             4.10.18   True        False         False      114m
+ingress                                    4.10.18   True        False         False      14d
 (...)
 ~~~
 
@@ -73,8 +74,6 @@ oc new-project < your-name >
 ```
 
 Now execute following command to deploy example application
-
-Now execute following command to deploy example application:
 
 ```execute
 oc new-app \
@@ -112,13 +111,13 @@ Push successful
 
 > **NOTE**: You may get an error saying "Error from server (BadRequest): container "sti-build" in pod "duckhunt-js-1-build" is waiting to start: PodInitializing"; you were just too quick to ask for the log output of the pods, simply re-run the command.
 
-Once finished, check the status of the pods by executing the command below:
+Once finished, check the status of the pods by executing the command below
 
 ```execute
 oc get pods 
 ```
 
-You'll see that a couple of pods have been created, one that just completed our build, and then the application itself, which should be in a `Running` state, if it's still showing as `ContainerCreating` just give it a few more seconds:
+You'll see that a couple of pods have been created, one that just completed our build, and then the application itself, which should be in a `Running` state, if it's still showing as `ContainerCreating` just give it a few more seconds
 
 
 ~~~bash
@@ -129,24 +128,23 @@ duckhunt-js-5b75fd5ccf-j7lqj   1/1     Running     0          105s   <-- this is
 
 Now expose the application (via the service) so we can route to it from the outside...
 
-
 ```execute
 oc expose svc/duckhunt-js
 ```
 
-As a result, a route is created:
+As a result, a route is created
 
 ~~~bash
 route.route.openshift.io/duckhunt-js exposed
 ~~~
 
-To check the route execute following command:
+To check the route execute following command
 
 ```execute
 oc get route duckhunt-js
 ```
 
-Now you should be able to see the route endpoint as below:
+Now you should be able to see the route endpoint as below
 
 ~~~bash
 NAME          HOST/PORT                                  PATH   SERVICES      PORT       TERMINATION   WILDCARD
@@ -158,21 +156,17 @@ You should be able to open up the application in the same browser that you're re
 
 <img width="1000" alt="Screen Shot 2022-07-17 at 15 50 28" src="https://user-images.githubusercontent.com/64369864/179399155-f31e6051-46ca-490c-b07e-6e5e7138c41b.png">
 
-
 Before we start looking at OpenShift Virtualization, let's just clean up the test project and have OpenShift remove the resources...
 
 ```execute
 oc delete project < your-name >
 ```
+
 Then wait for project deletion
 
 ~~~bash
 project.project.openshift.io "< your-name >" deleted
 ~~~
 
-
-
 Now we can move onto deploying OpenShift Virtualization...
-
-
 
