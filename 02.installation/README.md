@@ -24,11 +24,11 @@ Continue the installation by clicking on "**Create**" at the bottom.
 
 <img width="996" alt="Screen Shot 2022-07-17 at 16 43 38" src="https://user-images.githubusercontent.com/64369864/179401246-ba142016-d678-4755-b944-10aa48fc3bb5.png">
 
-You can move to the 'Workloads' --> 'Pods' menu entry and watch it start all of its resources
+You can move to the `Workloads` --> `Pods` menu entry and watch it start all of its resources
 
 <img width="1027" alt="Screen Shot 2022-07-17 at 16 44 40" src="https://user-images.githubusercontent.com/64369864/179401295-b5a066ee-0d1d-459c-8058-3d4b577f161f.png">
 
-You can also briefly return to the 'Terminal' tab in your hosted lab guide and watch via the CLI
+Watch via the CLI
 
 ```
 watch -n1 'oc get pods -n openshift-cnv'
@@ -43,8 +43,8 @@ oc get csv -n openshift-cnv
 You should see the output below
 
 ```
-NAME                                      DISPLAY                    VERSION   REPLACES                                  PHASE
-kubevirt-hyperconverged-operator.v4.9.3   OpenShift Virtualization   4.9.3     kubevirt-hyperconverged-operator.v4.9.2   Succeeded
+NAME                                       DISPLAY                    VERSION   REPLACES                                   PHASE
+kubevirt-hyperconverged-operator.v4.10.2   OpenShift Virtualization   4.10.2    kubevirt-hyperconverged-operator.v4.10.1   Succeeded
 ```
 > Once the `PHASE` changes to `Succeeded` you can validate that the required resources and the additional components have been deployed across the nodes, And all the pods shown from this command should be in the `Running` state.
 
