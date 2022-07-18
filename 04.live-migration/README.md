@@ -129,13 +129,13 @@ oc get nodes
 This lists the OpenShift nodes:
 
 ~~~bash
-NAME                           STATUS   ROLES    AGE   VERSION
-ocp4-master1.aio.example.com   Ready    master   2d    v1.22.0-rc.0+a44d0f0
-ocp4-master2.aio.example.com   Ready    master   2d    v1.22.0-rc.0+a44d0f0
-ocp4-master3.aio.example.com   Ready    master   2d    v1.22.0-rc.0+a44d0f0
-ocp4-worker1.aio.example.com   Ready    worker   2d    v1.22.0-rc.0+a44d0f0
-ocp4-worker2.aio.example.com   Ready    worker   2d    v1.22.0-rc.0+a44d0f0
-ocp4-worker3.aio.example.com   Ready    worker   2d    v1.22.0-rc.0+a44d0f0
+NAME                                        STATUS                  ROLES    AGE   VERSION
+master-0.c.almog-elfassy.internal           Ready                   master   14d   v1.23.5+3afdacb
+master-1.c.almog-elfassy.internal           Ready                   master   14d   v1.23.5+3afdacb
+master-2.c.almog-elfassy.internal           Ready                   master   14d   v1.23.5+3afdacb
+worker-b-4vbz5.c.almog-elfassy.internal     Ready                   worker   14d   v1.23.5+3afdacb
+worker-c-9fj7h.c.almog-elfassy.internal     Ready                   worker   14d   v1.23.5+3afdacb
+worker-d-hbq8l.c.almog-elfassy.internal     Ready                   worker   14d   v1.23.5+3afdacb
 ~~~
 
 Now check the VMIs:
@@ -144,14 +144,14 @@ Now check the VMIs:
 oc get vmi
 ```
 
-You should see the one VM running:
+You should see the one VM running
 
 ~~~bash
-NAME               AGE   PHASE     IP               NODENAME                       READY
-rhel8-server-ocs   45h   Running   192.168.123.64   ocp4-worker1.aio.example.com   True
+NAME        AGE   PHASE     IP       NODENAME          READY
+< name >    45h   Running   < IP >  < node nmae >      True
 ~~~
 
-In this environment, we have one virtual machine running on *ocp4-worker1* (yours may vary). Let's take down the node for maintenance and ensure that our workload (VM) stays up and running:
+Let's take down node for maintenance and ensure that our workload (VM) stays up and running:
 
 > **NOTE**: You may need to modify the below command to specify the worker listed in the output from above.  
 
@@ -162,7 +162,7 @@ kind: NodeMaintenance
 metadata:
   name: worker1-maintenance
 spec:
-  nodeName: ocp4-worker1.aio.example.com
+  nodeName: < worker-b-4vbz5.c.almog-elfassy.internal >
   reason: "Worker1 Maintenance"
 EOF
 ```
@@ -173,22 +173,16 @@ See that the `NodeMaintenance` object is created:
 nodemaintenance.nodemaintenance.kubevirt.io/worker1-maintenance
 ~~~
 
-> **NOTE**: You **may** lose your browser based web terminal like this:
->
-> ![live-mirate-terminal-closed](img/live-mirate-terminal-closed.png)
->
-> If this happens you'll need to wait a few seconds for it to become accessible again. Try reloading the terminal from the drop down menu in the upper right of the browser. This is because the OpenShift router and/or workbook pods may be running on the worker you put into maintenance.
-
-Assuming you're connected back in, let's check the status of our environment:
+let's check the status of our environment
 
 ```execute-1
 oc project default
 ```
 
-Ensure you are in the default project:
+Ensure you are in the default project
 
 ~~~bash
-Now using project "default" on server "https://172.30.0.1:443".
+Now using project "default".
 ~~~
 
 And check the nodes:
@@ -200,37 +194,36 @@ oc get nodes
 Notice that scheduling is disabled for `worker1` (or the worker that you specified maintenance for): 
 
 ~~~bash
-NAME                           STATUS                     ROLES    AGE   VERSION
-ocp4-master1.aio.example.com   Ready                      master   2d    v1.22.0-rc.0+a44d0f0
-ocp4-master2.aio.example.com   Ready                      master   2d    v1.22.0-rc.0+a44d0f0
-ocp4-master3.aio.example.com   Ready                      master   2d    v1.22.0-rc.0+a44d0f0
-ocp4-worker1.aio.example.com   Ready,SchedulingDisabled   worker   2d    v1.22.0-rc.0+a44d0f0
-ocp4-worker2.aio.example.com   Ready                      worker   2d    v1.22.0-rc.0+a44d0f0
-ocp4-worker3.aio.example.com   Ready                      worker   2d    v1.22.0-rc.0+a44d0f0
+NAME                                        STATUS                    ROLES    AGE   VERSION
+master-0.c.almog-elfassy.internal           Ready                     master   14d   v1.23.5+3afdacb
+master-1.c.almog-elfassy.internal           Ready                     master   14d   v1.23.5+3afdacb
+master-2.c.almog-elfassy.internal           Ready                     master   14d   v1.23.5+3afdacb
+worker-b-4vbz5.c.almog-elfassy.internal     Ready,SchedulingDisabled  worker   14d   v1.23.5+3afdacb
+worker-c-9fj7h.c.almog-elfassy.internal     Ready                     worker   14d   v1.23.5+3afdacb
+worker-d-hbq8l.c.almog-elfassy.internal     Ready                     worker   14d   v1.23.5+3afdacb
+
 ~~~
 
 
-Now check the VMI:
+Now check the VMI
 
 ```execute-1
 oc get vmi
 ```
 
-Note that the VM has been **automatically** live migrated back to an available worker and is not on the `SchedulingDisabled` worker, as per the `EvictionStrategy`, in this case `ocp4-worker3.aio.example.com`. 
+Note that the VM has been **automatically** live migrated back to an available worker and is not on the `SchedulingDisabled` worker, as per the `EvictionStrategy`. 
 
 ~~~bash
-NAME               AGE   PHASE     IP               NODENAME                       READY
-rhel8-server-ocs   46h   Running   192.168.123.64   ocp4-worker3.aio.example.com   True
+NAME        AGE   PHASE     IP       NODENAME          READY
+< name >    45h   Running   < IP >  < node nmae >      True
 ~~~
 
-
-We can remove the maintenance flag by simply deleting the `NodeMaintenance` object - update this to reflect the nodes in your environment:
-
+We can remove the maintenance flag by simply deleting the `NodeMaintenance` object - update this to reflect the nodes in your environment
 
 ```execute-1
 oc get nodemaintenance
 ```
-It should just show the one:
+It should just show the one
 
 ~~~bash
 NAME                  AGE
@@ -245,7 +238,7 @@ Now delete it:
 oc delete nodemaintenance/worker1-maintenance
 ```
 
-It should return the following output:
+It should return the following output
 
 ~~~bash
 nodemaintenance.nodemaintenance.kubevirt.io "worker1-maintenance" deleted
@@ -254,38 +247,36 @@ nodemaintenance.nodemaintenance.kubevirt.io "worker1-maintenance" deleted
 Then check the same node again:
 
 ```copy
-oc get node/ocp4-worker1.aio.example.com
+oc get node/worker-b-4vbz5.c.almog-elfassy.internal
 ```
 
-Note the removal of the `SchedulingDisabled` annotation on the '**STATUS**' column. Also important is that just because this node has become active again doesn't mean the virtual machine returns to it automatically, i.e. it won't "fail back", it will reside on the new host: 
+Note the removal of the `SchedulingDisabled` annotation on the '**STATUS**' column. Also important is that just because this node has become active again doesn't mean the virtual machine returns to it automatically, i.e. it won't "fail back", it will reside on the new host
 
 ~~~bash
-NAME                           STATUS   ROLES    AGE   VERSION
-ocp4-worker1.aio.example.com   Ready    worker   2d    v1.22.0-rc.0+a44d0f0
+NAME                                      STATUS   ROLES    AGE   VERSION
+worker-b-4vbz5.c.almog-elfassy.internal   Ready    worker   2d    v1.23.5+3afdacb
 ~~~
 
-Before proceeding let's remove the `rhel8-server-ocs` virtual machine as well as any lingering PVC's we don't need any longer:
+Before proceeding let's remove the `< name >` virtual machine as well as any lingering PVC's we don't need any longer:
 
 ```execute-1
-oc delete vm/rhel8-server-ocs
+oc delete vm/< name >
 ```
 
-This should be confirmed with:
+This should be confirmed with
 
 ~~~bash
-virtualmachine.kubevirt.io "rhel8-server-ocs" deleted
+virtualmachine.kubevirt.io "< name >" deleted
 ~~~
 
-Now delete the PVCs:
+Now delete the PVCs????????????
 
 ```execute-1
 oc delete pvc rhel8-ocs
 ```
 
-It should show the removal:
+It should show the removal
 
 ~~~bash
-persistentvolumeclaim "rhel8-ocs" deleted
+persistentvolumeclaim "< name >" deleted
 ~~~
-
-Choose "**Clone a Virtual Machine**" to continue with the lab.
