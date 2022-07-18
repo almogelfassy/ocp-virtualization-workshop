@@ -1,4 +1,4 @@
 - OpenShift cluster
-- ```OC``` CLI tool installed
+- ```OC``` CLI tool installed - [Click here](https://access.redhat.com/downloads/content/290/ver=4.9/rhel---7/4.9.0/x86_64/product-software) to download
 - `git` CLI tool installed
 - GitHub account
