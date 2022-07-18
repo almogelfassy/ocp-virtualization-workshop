@@ -15,7 +15,7 @@ Once the OpenShift virtualization operator is installed under the workloads tab 
 
 <img width="652" alt="Screen Shot 2022-07-17 at 23 21 49" src="https://user-images.githubusercontent.com/64369864/179423545-0f953cbe-2419-40a0-9576-f0dc1367392b.png">
 
-- (This step is not needed for OCP version 4.10+) Provide a custom boot source and PVC size. In this case, Red Hat Enterprise Linux qcow2 image from the [RHEL download page](https://access.cdn.redhat.com/content/origin/files/sha256/b2/b2bfd0abc871143b97e6648183e69987b6bc2aded58972a866f967fd355d0e9a/rhel-8.5-update-2-x86_64-kvm.qcow2?user=413f1dbc5f8e9da85b56b5a47d6187e5&_auth_=1658103754_63115abb1c7dde03003e604914959fbf) and 20 GiB PVC size was chosen. Starting from OpenShift Virtualization 4.10, the manual creation of the is not required anymore, because the boot source for RHEL will be provided out of the box.
+- (This step is not needed for OCP version 4.10+) Provide a custom boot source and PVC size. In this case, Red Hat Enterprise Linux qcow2 image from the [RHEL download page]([https://access.cdn.redhat.com/content/origin/files/sha256/b2/b2bfd0abc871143b97e6648183e69987b6bc2aded58972a866f967fd355d0e9a/rhel-8.5-update-2-x86_64-kvm.qcow2?user=413f1dbc5f8e9da85b56b5a47d6187e5&_auth_=1658103754_63115abb1c7dde03003e604914959fbf (https://access.redhat.com/downloads/content/479/ver=/rhel---8/8.5/x86_64/product-software) and 20 GiB PVC size was chosen. Starting from OpenShift Virtualization 4.10, the manual creation of the is not required anymore, because the boot source for RHEL will be provided out of the box.
 
 <img width="652" alt="Screen Shot 2022-07-17 at 23 24 35" src="https://user-images.githubusercontent.com/64369864/179423614-f7467ea9-0a48-4ad1-98b1-770c21b59aef.png">
 
