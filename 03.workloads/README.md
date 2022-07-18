@@ -126,7 +126,7 @@ rbd1     251:16   0   40G  0 disk
 └─rbd1p1 251:17   0  7.8G  0 part
 ```
 
-And for networking
+And for networking 
 
 `virsh domiflist < name >`
 
