@@ -1,6 +1,6 @@
 # Exercise 1 - OpenShift Virtualization Installation
 
-Navigate to the top-level 'Operators' menu entry, and select 'OperatorHub'. This lists all of the available operators that you can install from the operator catalogue. Start typing 'virtualization' in the search box and you should see an entry called "OpenShift Virtualization".
+Navigate to the top-level `Operators` menu entry, and select `OperatorHub`. This lists all of the available operators that you can install from the operator catalogue. Start typing 'virtualization' in the search box and you should see an entry called "OpenShift Virtualization".
 
 <img width="774" alt="Screen Shot 2022-07-17 at 16 36 39" src="https://user-images.githubusercontent.com/64369864/179401011-3770f09a-c234-4ae0-b02e-49b8e9c3cd04.png">
 
