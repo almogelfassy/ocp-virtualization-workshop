@@ -11,9 +11,9 @@ Once the OpenShift virtualization operator is installed under the workloads tab 
 - Click Workloads → Virtualization → Create Virtual Machine.
 - Choose a template, In this case, Red Hat Enterprise Linux 8.0+ was chosen.
 
-<img width="652" alt="Screen Shot 2022-07-17 at 23 21 17" src="https://user-images.githubusercontent.com/64369864/179423527-41e2432a-56ce-45bc-a4da-cb8032a6a297.png">
+<img width="1102" alt="Screen Shot 2022-07-19 at 2 41 26" src="https://user-images.githubusercontent.com/64369864/179634812-f1644214-cc37-4d00-9366-8dd43530decb.png">
 
-<img width="652" alt="Screen Shot 2022-07-17 at 23 21 49" src="https://user-images.githubusercontent.com/64369864/179423545-0f953cbe-2419-40a0-9576-f0dc1367392b.png">
+<img width="1271" alt="Screen Shot 2022-07-19 at 2 42 20" src="https://user-images.githubusercontent.com/64369864/179634894-9fba2911-122f-456e-a38a-de8ac95dec97.png">
 
 - (This step is not needed for OCP version 4.10+) Provide a custom boot source and PVC size. In this case, Red Hat Enterprise Linux qcow2 image from the [RHEL download page](https://access.redhat.com/downloads/content/479/ver=/rhel---8/8.5/x86_64/product-software) and 20 GiB PVC size was chosen. Starting from OpenShift Virtualization 4.10, the manual creation of the is not required anymore, because the boot source for RHEL will be provided out of the box.
 
