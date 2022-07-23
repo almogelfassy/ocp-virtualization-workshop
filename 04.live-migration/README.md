@@ -139,13 +139,13 @@ oc get nodes
 This lists the OpenShift nodes:
 
 ~~~bash
-NAME                                        STATUS                  ROLES    AGE   VERSION
-master-0.c.almog-elfassy.internal           Ready                   master   14d   v1.23.5+3afdacb
-master-1.c.almog-elfassy.internal           Ready                   master   14d   v1.23.5+3afdacb
-master-2.c.almog-elfassy.internal           Ready                   master   14d   v1.23.5+3afdacb
-worker-b-4vbz5.c.almog-elfassy.internal     Ready                   worker   14d   v1.23.5+3afdacb
-worker-c-9fj7h.c.almog-elfassy.internal     Ready                   worker   14d   v1.23.5+3afdacb
-worker-d-hbq8l.c.almog-elfassy.internal     Ready                   worker   14d   v1.23.5+3afdacb
+NAME                                                     STATUS   ROLES    AGE     VERSION
+workshop-n54ln-master-0.c.almog-elfassy.internal         Ready    master   4d22h   v1.23.5+3afdacb
+workshop-n54ln-master-1.c.almog-elfassy.internal         Ready    master   4d22h   v1.23.5+3afdacb
+workshop-n54ln-master-2.c.almog-elfassy.internal         Ready    master   4d22h   v1.23.5+3afdacb
+workshop-n54ln-worker-b-cqvfp.c.almog-elfassy.internal   Ready    worker   4d22h   v1.23.5+3afdacb
+workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal   Ready    worker   4d22h   v1.23.5+3afdacb
+workshop-n54ln-worker-d-rdcx9.c.almog-elfassy.internal   Ready    worker   4d22h   v1.23.5+3afdacb
 ~~~
 
 Now check the VMIs:
@@ -157,11 +157,11 @@ oc get vmi
 You should see the one VM running
 
 ~~~bash
-NAME        AGE   PHASE     IP       NODENAME          READY
-< name >    45h   Running   < IP >  < node nmae >      True
+NAME             AGE   PHASE     IP            NODENAME                                                 READY
+rhel8-aelfassy   31m   Running   10.129.2.54   workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal   True
 ~~~
 
-Let's take down node for maintenance and ensure that our workload (VM) stays up and running:
+Let's take down node for maintenance and ensure that our workload (VM) stays up and running
 
 > **NOTE**: You may need to modify the below command to specify the worker listed in the output from above.  
 
@@ -172,75 +172,77 @@ kind: NodeMaintenance
 metadata:
   name: worker1-maintenance
 spec:
-  nodeName: < worker-b-4vbz5.c.almog-elfassy.internal >
+  nodeName: < workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal >
   reason: "Worker1 Maintenance"
 EOF
 ```
 
-See that the `NodeMaintenance` object is created:
+See that the `NodeMaintenance` object is created
 
 ~~~bash
-nodemaintenance.nodemaintenance.kubevirt.io/worker1-maintenance
+nodemaintenance.nodemaintenance.kubevirt.io/worker1-maintenance created
 ~~~
 
 let's check the status of our environment
 
 ```execute-1
-oc project default
+oc project < workshop > 
 ```
 
-Ensure you are in the default project
+Ensure you are in your project
 
 ~~~bash
-Now using project "default".
+Now using project "workshop" on server "https://api.workshop.aelfassy.com:6443".
 ~~~
 
-And check the nodes:
+And check the nodes
 
 ```execute-1
+
 oc get nodes
 ```
 
 Notice that scheduling is disabled for `worker1` (or the worker that you specified maintenance for): 
 
 ~~~bash
-NAME                                        STATUS                    ROLES    AGE   VERSION
-master-0.c.almog-elfassy.internal           Ready                     master   14d   v1.23.5+3afdacb
-master-1.c.almog-elfassy.internal           Ready                     master   14d   v1.23.5+3afdacb
-master-2.c.almog-elfassy.internal           Ready                     master   14d   v1.23.5+3afdacb
-worker-b-4vbz5.c.almog-elfassy.internal     Ready,SchedulingDisabled  worker   14d   v1.23.5+3afdacb
-worker-c-9fj7h.c.almog-elfassy.internal     Ready                     worker   14d   v1.23.5+3afdacb
-worker-d-hbq8l.c.almog-elfassy.internal     Ready                     worker   14d   v1.23.5+3afdacb
 
+NAME                                                     STATUS                     ROLES    AGE     VERSION
+workshop-n54ln-master-0.c.almog-elfassy.internal         Ready                      master   4d22h   v1.23.5+3afdacb
+workshop-n54ln-master-1.c.almog-elfassy.internal         Ready                      master   4d22h   v1.23.5+3afdacb
+workshop-n54ln-master-2.c.almog-elfassy.internal         Ready                      master   4d22h   v1.23.5+3afdacb
+workshop-n54ln-worker-b-cqvfp.c.almog-elfassy.internal   Ready                      worker   4d22h   v1.23.5+3afdacb
+workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal   Ready,SchedulingDisabled   worker   4d22h   v1.23.5+3afdacb
+workshop-n54ln-worker-d-rdcx9.c.almog-elfassy.internal   Ready                      worker   4d22h   v1.23.5+3afdacb
 ~~~
 
 
 Now check the VMI
 
 ```execute-1
-oc get vmi
+oc get vmi 
 ```
 
 Note that the VM has been **automatically** live migrated back to an available worker and is not on the `SchedulingDisabled` worker, as per the `EvictionStrategy`. 
 
 ~~~bash
-NAME        AGE   PHASE     IP       NODENAME          READY
-< name >    45h   Running   < IP >  < node nmae >      True
+NAME             AGE   PHASE     IP            NODENAME                                                 READY
+rhel8-aelfassy   33m   Running   10.131.0.66   workshop-n54ln-worker-b-cqvfp.c.almog-elfassy.internal   True
 ~~~
 
 We can remove the maintenance flag by simply deleting the `NodeMaintenance` object - update this to reflect the nodes in your environment
 
 ```execute-1
+
 oc get nodemaintenance
 ```
 It should just show the one
 
 ~~~bash
 NAME                  AGE
-worker1-maintenance   5m16s
+worker1-maintenance   3m12s
 ~~~
 
-Now delete it:
+Now delete it
 
 > **NOTE**: You may need to modify the below command to specify your `nodemaintenance` object is the same as in the output from above.
 
@@ -254,39 +256,48 @@ It should return the following output
 nodemaintenance.nodemaintenance.kubevirt.io "worker1-maintenance" deleted
 ~~~
 
-Then check the same node again:
+Then check the same node again
 
 ```copy
-oc get node/worker-b-4vbz5.c.almog-elfassy.internal
+oc get node/workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal
 ```
 
 Note the removal of the `SchedulingDisabled` annotation on the '**STATUS**' column. Also important is that just because this node has become active again doesn't mean the virtual machine returns to it automatically, i.e. it won't "fail back", it will reside on the new host
 
 ~~~bash
-NAME                                      STATUS   ROLES    AGE   VERSION
-worker-b-4vbz5.c.almog-elfassy.internal   Ready    worker   2d    v1.23.5+3afdacb
+NAME                                                     STATUS   ROLES    AGE     VERSION
+workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal   Ready    worker   4d22h   v1.23.5+3afdacb
 ~~~
 
-Before proceeding let's remove the `< name >` virtual machine as well as any lingering PVC's we don't need any longer:
+Before proceeding let's remove the `< rhel8-aelfassy >` virtual machine as well as any lingering PVC's we don't need any longer
 
 ```execute-1
-oc delete vm/< name >
+oc delete vm/< rhel8-aelfassy >
 ```
 
 This should be confirmed with
 
 ~~~bash
-virtualmachine.kubevirt.io "< name >" deleted
+virtualmachine.kubevirt.io "rhel8-aelfassy" deleted
 ~~~
 
-Now delete the PVCs????????????
+Now delete the PVCs
+
+```
+oc get pvc
+```
+
+~~~bash
+NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                  AGE
+aelfassy-pvc   Bound    pvc-81f75bd9-aea2-4cf4-a303-bede96037c7d   30Gi       RWX            ocs-storagecluster-ceph-rbd   3h22m
+~~~
 
 ```execute-1
-oc delete pvc rhel8-ocs
+oc delete pvc aelfassy-pvc
 ```
 
 It should show the removal
 
 ~~~bash
-persistentvolumeclaim "< name >" deleted
+persistentvolumeclaim "aelfassy-pvc" deleted
 ~~~
