@@ -27,7 +27,7 @@ Once the OpenShift virtualization operator is installed under the workloads tab 
 
 <img width="1423" alt="Screen Shot 2022-07-23 at 20 55 00" src="https://user-images.githubusercontent.com/64369864/180617181-10179749-6acf-41c9-930a-2b17e6bbeda9.png">
 
-Click Virtualization → Virtual Machines → < Your VM > → Console
+Accessing virtual machine consoles, click Virtualization → Virtual Machines → < Your VM > → Console
 
 <img width="1006" alt="Screen Shot 2022-07-23 at 21 32 55" src="https://user-images.githubusercontent.com/64369864/180618481-74a55c42-5fd2-4bd9-9654-f13c621c8f01.png">
 
