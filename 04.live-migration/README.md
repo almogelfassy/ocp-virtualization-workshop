@@ -11,8 +11,8 @@ oc get vmi
 You should see something similar to the output below
 
 ~~~bash
-NAME        AGE   PHASE     IP       NODENAME          READY
-< name >    45h   Running   < IP >  < node nmae >.     True
+NAME             AGE   PHASE     IP            NODENAME                                                 READY
+rhel8-aelfassy   68m   Running   10.131.0.53   workshop-n54ln-worker-b-cqvfp.c.almog-elfassy.internal   True
 ~~~
 
 > **NOTE**: In OpenShift Virtualization, the "Virtual Machine" object can be thought of as the virtual machine "source" that virtual machine instances are created from. A "Virtual Machine Instance" is the actual running instance of the virtual machine. The instance is the object you work with that contains IP, networking, and workloads, etc. That's why we delete a VM, and list VMI's.
@@ -21,7 +21,7 @@ As you may recall we deployed this instance with the `LiveMigrate` `evictionStra
 
 
 ```execute-1
-oc describe vmi < name > | egrep '(Eviction|Migration)'
+oc describe vmi < rhel8-aelfassy > | egrep '(Eviction|Migration)'
 ```
 
 This command should have a similar output as below, although trimmed:
@@ -39,7 +39,7 @@ kind: VirtualMachineInstanceMigration
 metadata:
   name: migration-job
 spec:
-  vmiName: < name >
+  vmiName: < rhel8-aelfassy >
 ~~~
 
 It's really quite simple, we create a `VirtualMachineInstanceMigration` object and reference the `LiveMigratable ` instance we want to migrate. Let's apply this configuration:
@@ -51,11 +51,11 @@ kind: VirtualMachineInstanceMigration
 metadata:
   name: migration-job
 spec:
-  vmiName: < name >
+  vmiName: rhel8-aelfassy
 EOF
 ```
 
-Check that the `VirtualMachineInstanceMigration` object is created:
+Check that the `VirtualMachineInstanceMigration` object is created
 
 ~~~bash
 virtualmachineinstancemigration.kubevirt.io/migration-job created
@@ -67,7 +67,7 @@ Now let's watch the migration job in action. First it will show `phase: Scheduli
 watch -n1 oc get virtualmachineinstancemigration/migration-job -o yaml
 ```
 
-With the output:
+With the output
 
 ~~~bash
 
@@ -75,7 +75,7 @@ apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstanceMigration
 (...)
 spec:
-  vmiName: < name >
+  vmiName: rhel8-aelfassy
 status:
   phase: Scheduling    <----------- Here you can see it's scheduling
 ~~~
@@ -88,7 +88,7 @@ apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstanceMigration
 (...)
 spec:
-  vmiName: < name >
+  vmiName: rhel8-aelfassy
 status:
   phase: Succeeded    <----------- Now it has finished the migration
 ~~~
@@ -102,18 +102,21 @@ oc get vmi
 Now check the output:
 
 ~~~bash
-NAME        AGE   PHASE     IP       NODENAME          READY
-< name >    45h   Running   < IP >  < node nmae >.     True
+NAME             AGE   PHASE     IP            NODENAME                                                 READY
+rhel8-aelfassy   13m   Running   10.129.2.53   workshop-n54ln-worker-c-x98pv.c.almog-elfassy.internal   True
 ~~~
 
-As you can see Live Migration in OpenShift Virtualization is quite easy. If you have time, try some other examples. Perhaps start a ping and migrate the machine back. Do you see anything in the ping to indicate the process?
+As you can see Live Migration in OpenShift Virtualization is quite easy. If you have time, try to do that from the OpenShift console
 
-> **NOTE**: If you try and run the same migration job it will report `unchanged`. To run a new job, run the same example as above, but change the job name in the metadata section to something like `name: migration-job2`
 
-Also, rerun the `oc describe vmi < name >` after running a few migrations. You'll see the object is updated with details of the migrations, including source and target:
+
+![image](https://user-images.githubusercontent.com/64369864/180619941-04bdd0de-b68a-44bd-b061-da2e7f73d5c3.png)
+
+
+Also, rerun the `oc describe vmi < rhel8-aelfassy >` after running a few migrations. You'll see the object is updated with details of the migrations, including source and target
 
 ```execute-1
-oc describe vmi < name >
+oc describe vmi < rhel8-aelfassy >
 ```
 
 ## Node Maintenance
