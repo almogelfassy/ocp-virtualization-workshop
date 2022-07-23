@@ -34,7 +34,9 @@ odf-operator.v4.10.5              OpenShift Data Foundation     4.10.5    odf-op
 
 We're going to use the already-deployed ODF based shared storage for the majority of the tasks.
 
-In the next few steps we're going to be creating a storage volume for a virtual machine that we'll create in a later lab section, and for this we'll pull in the contents of an existing disk image, so there's an operating system for our virtual machine to boot up. First, make sure you're in the default project:
+In the next few steps we're going to be creating a storage volume for a virtual machine that we'll create in a later lab section, and for this we'll pull in the contents of an existing disk image, so there's an operating system for our virtual machine to boot up. 
+
+???????First, make sure you're in the default project:
 
 ```execute-1
 oc project default
@@ -45,6 +47,7 @@ You should see:
 ~~~bash
 Now using project "default" on server "https://api.workshop.aelfassy.com:6443".
 ~~~
+?????????
 
 >**NOTE**: If you don't use the default project for the next few lab steps, it's likely that you'll run into some errors - some resources are scoped, i.e. aligned to a namespace, and others are not. Ensuring you're in the default namespace now will ensure that all of the coming lab steps should flow together.
 
@@ -54,135 +57,38 @@ Now let's create a new ODF-based Peristent Volume Claim (PVC) - a request for a 
 
 Basically we are asking OpenShift to create this Persistent Volume Claim and use the image in the endpoint to fill it. In this case we use `"https://access.redhat.com/downloads/content/479/ver=/rhel---8/8.5/x86_64/product-software"`.
 
-In addition to triggering the CDI utility we also specify the storage class that OCS/ODF uses (`ocs-storagecluster-ceph-rbd`) which will dynamically create the PV in the backend Ceph storage platform. Finally note the `requests` section - we are asking for a 20GB volume size.
+In addition to triggering the CDI utility we also specify the storage class that OCS/ODF uses (`ocs-storagecluster-ceph-rbd`) which will dynamically create the PV in the backend Ceph storage platform. Finally note the `requests` section - we are asking for a 30GB volume size.
 
 OK, let's create the PVC with all this included:
 
+Download the `Red Hat Enterprise Linux 8.5 Update KVM Guest Image` QEMU image from [here](https://access.redhat.com/downloads/content/479/ver=/rhel---8/8.5/x86_64/product-software)
 
-```execute-1 
-cat << EOF | oc apply -f -
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: "rhel8-aelfassy"
-  labels:
-    app: containerized-data-importer
-  annotations:
-    cdi.kubevirt.io/storage.import.endpoint: "http://192.168.123.100:81/rhel8-kvm.img"
-spec:
-  volumeMode: Block
-  storageClassName: ocs-storagecluster-ceph-rbd
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 40Gi
-EOF
-```
+![image](https://user-images.githubusercontent.com/64369864/180614252-f634ef3f-78de-48fd-8178-2aa7e894785a.png)
 
-This should create our new PVC:
 
-~~~bash
-persistentvolumeclaim/rhel8-ocs created
-~~~
+Once the image downloaded, move to the 'Storage' --> 'PersistentVolumeClaims' --> 'Create PersistentVolumeClaim' --> 'With Data un oad torm' 
 
-Once created, CDI triggers the importer pod automatically to take care of the conversion for you:
+![image](https://user-images.githubusercontent.com/64369864/180614282-f5a1ddd0-c2c0-4e9c-b1f9-5fb20d837b8e.png)
 
-```execute-1 
-oc get pods
-```
+Upload the `Red Hat Enterprise Linux 8.5 Update KVM Guest Image` QEMU image and filed the info
 
-You should see the importer pod as below:
+![image](https://user-images.githubusercontent.com/64369864/180614366-cf234cdf-621d-4c6e-93e2-bc82a17af1de.png)
 
-~~~bash
-NAME                   READY   STATUS              RESTARTS   AGE
-importer-rhel8-ocs     0/1     ContainerCreating   0          1s
-~~~
+Once the uploading is completed the Persistent Volume Claim will become available and ready to use
 
-Watch the logs and you can see the process, it may initially give an error about the pod waiting to start, you can retry after a few seconds:
+![image](https://user-images.githubusercontent.com/64369864/180614421-aff72504-ac53-4e64-9e44-f8b66894f2ea.png)
 
-```execute-1 
-oc logs importer-rhel8-ocs -f
-```
+![image](https://user-images.githubusercontent.com/64369864/180614454-9bc9ea76-1b09-4856-a5c5-0058d3a83af3.png)
 
-You will see the log output as below:
-
-~~~bash
-I1103 17:33:42.409423       1 importer.go:52] Starting importer
-I1103 17:33:42.442150       1 importer.go:135] begin import process
-I1103 17:33:42.447139       1 data-processor.go:329] Calculating available size
-I1103 17:33:42.448349       1 data-processor.go:337] Checking out block volume size.
-I1103 17:33:42.448380       1 data-processor.go:349] Request image size not empty.
-I1103 17:33:42.448395       1 data-processor.go:354] Target size 40Gi.
-I1103 17:33:42.448977       1 nbdkit.go:269] Waiting for nbdkit PID.
-I1103 17:33:42.949247       1 nbdkit.go:290] nbdkit ready.
-I1103 17:33:42.949288       1 data-processor.go:232] New phase: Convert
-I1103 17:33:42.949328       1 data-processor.go:238] Validating image
-I1103 17:33:42.969690       1 qemu.go:250] 0.00
-I1103 17:33:47.145392       1 qemu.go:250] 1.02
-I1103 17:33:53.728302       1 qemu.go:250] 2.03
-I1103 17:33:55.924329       1 qemu.go:250] 3.05
-I1103 17:33:58.014054       1 qemu.go:250] 4.06
-(...)
-I0317 11:46:56.253155       1 prometheus.go:69] 98.24
-I0317 11:46:57.253350       1 prometheus.go:69] 100.00
-I0317 11:47:00.195494       1 data-processor.go:205] New phase: Resize
-I0317 11:47:00.524989       1 data-processor.go:268] Expanding image size to: 40Gi
-I0317 11:47:00.878420       1 data-processor.go:205] New phase: Complete
-~~~
-
-If you're quick, you can Ctrl-C this watch (don't worry, it won't kill the import, you're just watching its logs), and view the structure of the importer pod to get some of the configuration it's using:
-
-```execute-1 
- oc describe pod $(oc get pods | awk '/importer/ {print $1;}')
-```
-
-~~~yaml
-Name:         importer-rhel8-ocs
-Namespace:    default
-Priority:     0
-Node:         ocp4-worker1.%node-network-domain%/192.168.123.104
-Start Time:   Wed, 03 Nov 2021 17:32:59 +0000
-Labels:       app=containerized-data-importer
-              app.kubernetes.io/component=storage
-              app.kubernetes.io/managed-by=cdi-controller
-              app.kubernetes.io/part-of=hyperconverged-cluster
-              app.kubernetes.io/version=v4.9.0
-              cdi.kubevirt.io=importer
-(...)
-    Environment:
-      IMPORTER_SOURCE:               http
-      IMPORTER_ENDPOINT:             http://192.168.123.100:81/rhel8-kvm.img
-      IMPORTER_CONTENTTYPE:          kubevirt
-      IMPORTER_IMAGE_SIZE:           40Gi
-      OWNER_UID:                     11b007c9-293f-46a6-b1e2-e3a59b66ec4b
-      FILESYSTEM_OVERHEAD:           0
-      INSECURE_TLS:                  false
-(...)
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-q6d4s (ro)
-    Devices:
-      /dev/cdi-block-volume from cdi-data-vol
-(...)
-Volumes:
-  cdi-data-vol:
-    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
-    ClaimName:  rhel8-ocs
-    ReadOnly:   false
-(...)
-~~~
-
-Here we can see the importer settings we requested through our claims, such as `IMPORTER_SOURCE`, `IMPORTER_ENDPOINT`, and `IMPORTER_IMAGE_SIZE`. You can check PVC readiness by executing the command below:
+You can check PVC readiness by executing the command below:
 
 ```execute-1 
 oc get pvc
 ```
 
-Once this process has completed you'll notice that your PVC is ready to use:
-
 ~~~bash
-NAME        STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                  AGE
-rhel8-ocs   Bound    pvc-1a4ea2c5-937c-486d-932c-b2b7d161ec0e   40Gi       RWX            ocs-storagecluster-ceph-rbd   50s
+NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                  AGE
+aelfassy-pvc   Bound    pvc-81f75bd9-aea2-4cf4-a303-bede96037c7d   30Gi       RWX            ocs-storagecluster-ceph-rbd   19m
 ~~~
 
 This same configuration should be reflected when asking OpenShift for a list of *all* persistent volumes (`PV`):
@@ -191,77 +97,91 @@ This same configuration should be reflected when asking OpenShift for a list of 
 oc get pv
 ```
 
-Noting that there will be some additional PV's that are used with OpenShift Data Foundation as well as the image registry: 
+Noting that there will be some additional PV's that are used with OpenShift Data Foundation as well as the image registry
 
 ~~~bash
-NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                           STORAGECLASS                  REASON   AGE
-local-pv-6751e4c7                          100Gi      RWO            Delete           Bound    openshift-storage/ocs-deviceset-0-data-1g87z7   localblock                             52m
-local-pv-759d6092                          100Gi      RWO            Delete           Bound    openshift-storage/ocs-deviceset-1-data-1kks6c   localblock                             52m
-local-pv-911d74ba                          100Gi      RWO            Delete           Bound    openshift-storage/ocs-deviceset-1-data-0f9khs   localblock                             52m
-local-pv-9d4e1eb0                          100Gi      RWO            Delete           Bound    openshift-storage/ocs-deviceset-2-data-0hvt5v   localblock                             52m
-local-pv-be875671                          100Gi      RWO            Delete           Bound    openshift-storage/ocs-deviceset-0-data-0vlwls   localblock                             52m
-local-pv-e2c7f8a9                          100Gi      RWO            Delete           Bound    openshift-storage/ocs-deviceset-2-data-17kkwt   localblock                             52m
-pvc-1a4ea2c5-937c-486d-932c-b2b7d161ec0e   40Gi       RWX            Delete           Bound    default/rhel8-ocs                               ocs-storagecluster-ceph-rbd            77s
-pvc-ee63c434-9d72-4bc4-b224-a7d5ae7aa9b9   100Gi      RWX            Delete           Bound    openshift-image-registry/ocs-imgreg             ocs-storagecluster-cephfs              45m
-pvc-f8f83266-dfb2-463b-8707-d4514566eb67   50Gi       RWO            Delete           Bound    openshift-storage/db-noobaa-db-pg-0             ocs-storagecluster-ceph-rbd            46m
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                                            STORAGECLASS                  REASON   AGE
+pvc-055ee63c-8940-4486-9b00-13aa76b473e5   30Gi       RWO            Delete           Bound    openshift-virtualization-os-images/centos7-680e9b4e0fba          standard                               4d19h
+pvc-0c2bcd66-6f76-49cc-8a72-db09cc630813   30Gi       RWO            Delete           Bound    openshift-virtualization-os-images/rhel9-e04dfadb2d71            standard                               4d19h
+pvc-11687443-710e-4a5f-90a9-5e07660f1f37   50Gi       RWO            Delete           Bound    openshift-storage/db-noobaa-db-pg-0                              ocs-storagecluster-ceph-rbd            4d18h
+pvc-1d7e7f23-f5e6-4160-8892-e5163869c078   2Ti        RWO            Delete           Bound    openshift-storage/ocs-deviceset-standard-1-data-0d5wx6           standard                               4d18h
+pvc-1ed86975-20bf-4c76-83cb-5beecd993629   30Gi       RWX            Delete           Bound    openshift-virtualization-os-images/rhel8                         ocs-storagecluster-ceph-rbd            4d17h
+pvc-2241b1fa-febd-487c-89a5-8383a0c090a1   30Gi       RWO            Delete           Bound    openshift-virtualization-os-images/rhel8-d8b84352ee28            standard                               4d19h
+pvc-2388d225-0317-4397-834b-f2d01184584e   2Ti        RWO            Delete           Bound    openshift-storage/ocs-deviceset-standard-2-data-0lng2s           standard                               4d18h
+pvc-246a3f03-dcab-47a1-8857-739f5c5cf75e   50Gi       RWO            Delete           Bound    openshift-storage/rook-ceph-mon-c                                standard                               4d18h
+pvc-56d75bf1-f409-44bf-92d7-8fede2a3a8de   50Gi       RWO            Delete           Bound    openshift-storage/rook-ceph-mon-a                                standard                               4d18h
+pvc-5ae20aba-516d-45cb-a581-e51835e7160c   30Gi       RWX            Delete           Bound    openshift-virtualization-os-images/centos-stream9-d4a96992f850   ocs-storagecluster-ceph-rbd            4d6h
+pvc-5c9e27cd-74c7-45e1-af50-35ca322eb948   30Gi       RWO            Delete           Bound    openshift-virtualization-os-images/fedora-3b3fc310abea           standard                               4d19h
+pvc-81f75bd9-aea2-4cf4-a303-bede96037c7d   30Gi       RWX            Delete           Bound    workshop/aelfassy-pvc                                            ocs-storagecluster-ceph-rbd            22m
+pvc-82cb1d22-1ebf-4312-864a-6f1fad308814   50Gi       RWO            Delete           Bound    openshift-storage/rook-ceph-mon-b                                standard                               4d18h
+pvc-a8a2f21e-d273-492a-8a80-50fef61d9f5d   30Gi       RWO            Delete           Bound    openshift-virtualization-os-images/centos-stream9-8f10faac35fa   standard                               4d19h
+pvc-bfba65c9-8b1d-4c20-b5cf-86cf16e9de82   2Ti        RWO            Delete           Bound    openshift-storage/ocs-deviceset-standard-0-data-0dm6v5           standard                               4d18h
+pvc-fff108e1-7c3a-432f-bf61-61ea3e797b63   30Gi       RWO            Delete           Bound    openshift-virtualization-os-images/centos-stream8-178796a2fbe3   standard                               4d19h
 ~~~
 
-Let's take a look on the Ceph-backed storage system for more information about the image. We can do this by matching the PVC to the underlying RBD image. First describe the persistent volume to get the UUID of the image name by matching the ID of the PV for `rhel8-ocs` in the output above. You'll have to manually enter these values for your environment. In the example above that value is `pvc-1a4ea2c5-937c-486d-932c-b2b7d161ec0e` :
+Let's take a look on the Ceph-backed storage system for more information about the image. We can do this by matching the PVC to the underlying RBD image. First describe the persistent volume to get the UUID of the image name by matching the ID of the PV for `aelfassy-pvc` in the output above. You'll have to manually enter these values for your environment. In the example above that value is `pvc-81f75bd9-aea2-4cf4-a303-bede96037c7d` 
 
 
 ```
-oc describe pv/pvc-1a4ea2c5-937c-486d-932c-b2b7d161ec0e | grep imageName
-      imageName=csi-vol-70d062c5-408f-11ec-a2b0-0a580a830025
+oc describe pv/pvc-81f75bd9-aea2-4cf4-a303-bede96037c7d | grep imageName
+                 imageName=csi-vol-c785dd3f-0aa3-11ed-b298-0a580a83000a
 ```
 
-This gives us the imageName we need. In the above output that is `csi-vol-70d062c5-408f-11ec-a2b0-0a580a830025`
+This gives us the imageName we need. Now we need to look at the image on the OpenShift cluster itself. We do this by first attaching to a special pod containing Ceph CLI tools, and then asking for details about the image in question
 
-Now we need to look at the image on the OpenShift cluster itself. We do this by first attaching to a special pod containing Ceph CLI tools, and then asking for details about the image in question:
+```execute-1 
+oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch '[{ "op": "replace", "path":"/spec/enableCephTools","value":true}]'
+
+```
+This should create our new tools pod
+
+```
+ocsinitialization.ocs.openshift.io/ocsinit patched
+```
+Once created, move to the pod's terminal
 
 ```execute-1 
 oc exec -it -n openshift-storage \
     $(oc get pods -n openshift-storage | awk '/tools/ {print $1;}') bash
 ```
 
-Now, in the pod's terminal we can use the `rbd` command to inspect the image, noting we must specify the pool name "*ocs-storagecluster-cephblockpool*" as this is a "block" type of PV:
-
+Now, in the pod's terminal we can use the `rbd` command to inspect the image, noting we must specify the pool name "*ocs-storagecluster-cephblockpool*" as this is a "block" type of PV
 
 ```
-rbd info csi-vol-70d062c5-408f-11ec-a2b0-0a580a830025 \
+rbd info csi-vol-c785dd3f-0aa3-11ed-b298-0a580a83000a \
           --pool=ocs-storagecluster-cephblockpool
 ```
 
-This will display information about the image:
+This will display information about the image
 
 ~~~yaml
-rbd image 'csi-vol-70d062c5-408f-11ec-a2b0-0a580a830025':
-	size 40 GiB in 10240 objects
+rbd image 'csi-vol-c785dd3f-0aa3-11ed-b298-0a580a83000a':
+	size 30 GiB in 7680 objects
 	order 22 (4 MiB objects)
 	snapshot_count: 0
-	id: 115b595bde9a
-	block_name_prefix: rbd_data.115b595bde9a
+	id: 2373c16693ddb
+	block_name_prefix: rbd_data.2373c16693ddb
 	format: 2
 	features: layering
-	op_features: 
-	flags: 
-	create_timestamp: Mon Nov  8 12:28:56 2021
-	access_timestamp: Mon Nov  8 12:28:56 2021
-	modify_timestamp: Mon Nov  8 12:28:56 2021
+	op_features:
+	flags:
+	create_timestamp: Sat Jul 23 16:23:26 2022
+	access_timestamp: Sat Jul 23 16:23:26 2022
+	modify_timestamp: Sat Jul 23 16:23:26 2022
 ~~~
 
-
-Then execute an `rbd disk-usage` request against the same image to see the disk usage; don't forget to specifiy the correct pool:
+Then execute an `rbd disk-usage` request against the same image to see the disk usage; don't forget to specifiy the correct pool
 
 ```
-rbd disk-usage csi-vol-70d062c5-408f-11ec-a2b0-0a580a830025 \
+rbd disk-usage csi-vol-c785dd3f-0aa3-11ed-b298-0a580a83000a \
           --pool=ocs-storagecluster-cephblockpool
 ```
 
-This will display the usage:
+This will display the usage
 
 ~~~bash
-NAME                                         PROVISIONED USED
-csi-vol-70d062c5-408f-11ec-a2b0-0a580a830025      40 GiB 8.7 GiB
+NAME                                          PROVISIONED  USED
+csi-vol-c785dd3f-0aa3-11ed-b298-0a580a83000a       30 GiB  1.7 GiB
 ~~~
 
 That's it! Don't forget to exit from the pod when done.
@@ -270,6 +190,4 @@ That's it! Don't forget to exit from the pod when done.
 exit
 ```
 
-You'll see that this image matches the correct size, corresponds to the PV that we requested be created for us, and has consumed approximately ~9GB of the disk, reflecting that we've cloned a copy of CentOS8 into our persistent volume via the data importer tool. We'll use this persistent volume to spawn a virtual machine in a later step.
-
-For now, let's move on and check out some networking. Click on "**Networking Setup**" below to move to the next lab section.
+You'll see that this image matches the correct size, corresponds to the PV that we requested be created for us, reflecting that we've cloned a copy of RHEL8.5 into our persistent volume via the data importer tool. We'll use this persistent volume to spawn a virtual machine in a later step.
