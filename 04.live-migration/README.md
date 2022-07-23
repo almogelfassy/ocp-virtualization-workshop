@@ -108,10 +108,17 @@ rhel8-aelfassy   13m   Running   10.129.2.53   workshop-n54ln-worker-c-x98pv.c.a
 
 As you can see Live Migration in OpenShift Virtualization is quite easy. If you have time, try to do that from the OpenShift console
 
-
+Click Virtualization → Virtual Machines → < Your VM > → Actions → Migrate Node to Node 
 
 ![image](https://user-images.githubusercontent.com/64369864/180619941-04bdd0de-b68a-44bd-b061-da2e7f73d5c3.png)
 
+Here you can see it's scheduling - `Migrating` status
+
+![image](https://user-images.githubusercontent.com/64369864/180620050-8b3b4df9-a49b-49de-882e-3348ce67aea6.png)
+
+Now it has finished the migration - `Running` status and the node is different
+
+![image](https://user-images.githubusercontent.com/64369864/180620103-86fdc4ad-f17b-4d56-8db8-98464d7ba65c.png)
 
 Also, rerun the `oc describe vmi < rhel8-aelfassy >` after running a few migrations. You'll see the object is updated with details of the migrations, including source and target
 
